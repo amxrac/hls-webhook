@@ -1,6 +1,6 @@
 use std::env;
 
-use axum::{Router, extract::State, http::StatusCode, response::Json, routing::get};
+use axum::{Router, extract::State, http::StatusCode, response::Json, routing::get, response::Response};
 use hlswbhk::state::AppState;
 use serde_json::{Value, json};
 
@@ -34,3 +34,5 @@ async fn health_check(State(state): State<AppState>) -> (StatusCode, Json<Value>
         ),
     }
 }
+
+async fn webhook(State(state): State<AppState>) ->
