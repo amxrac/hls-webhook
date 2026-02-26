@@ -19,6 +19,7 @@ pub enum TriggerType {
     TokenTransfer,
     WalletBalance,
     Swap,
+    // NativeTransfers,
 }
 
 impl TriggerType {

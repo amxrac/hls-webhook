@@ -19,9 +19,13 @@ pub fn parse_event(tx: &Value) -> Option<NewTriggerEvent> {
     }
 
     let token_transfers = tx.get("tokenTransfers").and_then(|i| i.as_array())?;
-
     if !token_transfers.is_empty() {
         return parse_token_transfers(tx, signature, timestamp);
+    }
+
+    let native_transfers = tx.get("nativeTransfers").and_then(|i| i.as_array())?;
+    if !native_transfers.is_empty() {
+        return parse_native_transfers(tx, signature, timestamp);
     }
 
     None
@@ -62,7 +66,7 @@ pub fn parse_token_transfers(
     signature: String,
     timestamp: DateTime<Utc>,
 ) -> Option<NewTriggerEvent> {
-    let token_transfers = tx
+    let token_transfers = &tx
         .get("tokenTransfers")
         .and_then(|i| i.as_array())?
         .first()?;
@@ -85,6 +89,36 @@ pub fn parse_token_transfers(
         wallet,
         value,
         token_mint,
+        timestamp,
+        tx_signature: signature,
+    })
+}
+
+pub fn parse_native_transfers(
+    tx: &Value,
+    signature: String,
+    timestamp: DateTime<Utc>,
+) -> Option<NewTriggerEvent> {
+    let native_transfers = &tx
+        .get("nativeTransfers")
+        .and_then(|i| i.as_array())?
+        .first()?;
+    let wallet = native_transfers
+        .get("fromUserAccount")
+        .and_then(|i| i.as_str())
+        .map(|i| i.to_string())?;
+    let amount = native_transfers
+        .get("amount")
+        .and_then(|v| v.as_f64())
+        .unwrap_or(0.0);
+    let value = amount / 1_000_000_000.0;
+
+    Some(NewTriggerEvent {
+        trigger_type: TriggerType::WalletBalance,
+        // trigger_type: TriggerType::NativeTransfer
+        wallet,
+        value,
+        token_mint: None,
         timestamp,
         tx_signature: signature,
     })
