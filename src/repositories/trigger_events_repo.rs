@@ -1,6 +1,6 @@
 use crate::models::trigger_events::TriggerEvent;
 use crate::schema::trigger_events_schema::NewTriggerEvent;
-use sqlx::{SqlitePool, events};
+use sqlx::SqlitePool;
 
 #[derive(Clone)]
 pub struct TriggerEventRepo {
@@ -44,5 +44,23 @@ impl TriggerEventRepo {
         .await?;
 
         Ok(events)
+    }
+
+    pub async fn get_event_by_wallet(
+        &self,
+        wallet: &str,
+    ) -> Result<Option<TriggerEvent>, sqlx::Error> {
+        let event = sqlx::query_as::<_, TriggerEvent>(
+            r#"
+            SELECT id, trigger_type, wallet, value, token_mint, timestamp, tx_signature
+            FROM trigger_events
+            WHERE wallet = $1
+            "#,
+        )
+        .bind(wallet)
+        .fetch_optional(&self.db)
+        .await?;
+
+        Ok(event)
     }
 }
