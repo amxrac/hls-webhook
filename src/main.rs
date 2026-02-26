@@ -1,6 +1,13 @@
 use std::env;
 
-use axum::{Router, extract::State, http::StatusCode, response::Json, routing::get, response::Response};
+use axum::{
+    Router,
+    extract::State,
+    http::StatusCode,
+    response::Json,
+    response::Response,
+    routing::{get, post},
+};
 use hlswbhk::state::AppState;
 use serde_json::{Value, json};
 
@@ -15,6 +22,7 @@ async fn main() {
 
     let app = Router::new()
         .route("/health", get(health_check))
+        .route("/webhook", post(webhook))
         .with_state(app_state);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
@@ -35,4 +43,10 @@ async fn health_check(State(state): State<AppState>) -> (StatusCode, Json<Value>
     }
 }
 
-async fn webhook(State(state): State<AppState>) ->
+async fn webhook(State(_state): State<AppState>, Json(payload): Json<Value>) -> StatusCode {
+    println!(
+        "raw payload: {}",
+        serde_json::to_string_pretty(&payload).unwrap()
+    );
+    StatusCode::OK
+}
