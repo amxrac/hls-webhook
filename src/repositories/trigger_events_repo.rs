@@ -63,4 +63,22 @@ impl TriggerEventRepo {
 
         Ok(event)
     }
+
+    pub async fn get_event_by_token(
+        &self,
+        token: &str,
+    ) -> Result<Option<TriggerEvent>, sqlx::Error> {
+        let event = sqlx::query_as::<_, TriggerEvent>(
+            r#"
+            SELECT id, trigger_type, wallet, value, token_mint, timestamp, tx_signature
+            FROM trigger_events
+            WHERE token_mint = $1
+            "#,
+        )
+        .bind(token)
+        .fetch_optional(&self.db)
+        .await?;
+
+        Ok(event)
+    }
 }
