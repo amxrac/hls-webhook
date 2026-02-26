@@ -2,7 +2,7 @@ use std::env;
 
 use axum::{
     Router,
-    extract::State,
+    extract::{Path, State},
     http::StatusCode,
     response::Json,
     response::Response,
@@ -28,6 +28,7 @@ async fn main() {
         .route("/health", get(health_check))
         .route("/webhook", post(webhook))
         .route("/events", get(get_all_events))
+        .route("/events/:wallet", get(get_events_by_wallet))
         .with_state(app_state);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
@@ -92,6 +93,23 @@ async fn webhook(
 
 async fn get_all_events(State(state): State<AppState>) -> (StatusCode, Json<Value>) {
     match state.trigger_events_repo.get_all_events().await {
+        Ok(events) => (StatusCode::OK, Json(json!(events))),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({"error": e.to_string()})),
+        ),
+    }
+}
+
+async fn get_events_by_wallet(
+    State(state): State<AppState>,
+    Path(wallet): Path<String>,
+) -> (StatusCode, Json<Value>) {
+    match state
+        .trigger_events_repo
+        .get_events_by_wallet(&wallet)
+        .await
+    {
         Ok(events) => (StatusCode::OK, Json(json!(events))),
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
