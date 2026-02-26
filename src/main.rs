@@ -117,3 +117,20 @@ async fn get_events_by_wallet(
         ),
     }
 }
+
+async fn get_events_by_token_mint(
+    State(state): State<AppState>,
+    Path(token_mint): Path<String>,
+) -> (StatusCode, Json<Value>) {
+    match state
+        .trigger_events_repo
+        .get_events_by_token_mint(&wallet)
+        .await
+    {
+        Ok(events) => (StatusCode::OK, Json(json!(events))),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({"error": e.to_string()})),
+        ),
+    }
+}
