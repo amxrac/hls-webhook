@@ -56,7 +56,7 @@ pub fn parse_swap(
         wallet,
         value: output_value,
         token_mint: output_mint,
-        timestamp,
+        timestamp: timestamp.to_rfc3339(),
         tx_signature: signature,
     })
 }
@@ -89,7 +89,7 @@ pub fn parse_token_transfers(
         wallet,
         value,
         token_mint,
-        timestamp,
+        timestamp: timestamp.to_rfc3339(),
         tx_signature: signature,
     })
 }
@@ -119,7 +119,7 @@ pub fn parse_native_transfers(
         wallet,
         value,
         token_mint: None,
-        timestamp,
+        timestamp: timestamp.to_rfc3339(),
         tx_signature: signature,
     })
 }

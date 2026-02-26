@@ -6,6 +6,6 @@ pub struct NewTriggerEvent {
     pub wallet: String,
     pub value: f64,
     pub token_mint: Option<String>,
-    pub timestamp: DateTime<Utc>,
+    pub timestamp: String,
     pub tx_signature: String,
 }
