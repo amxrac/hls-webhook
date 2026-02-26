@@ -19,6 +19,12 @@ pub fn parse_event(tx: &Value) -> Option<NewTriggerEvent> {
     }
 
     let token_transfers = tx.get("tokenTransfers").and_then(|i| i.as_array())?;
+
+    if !token_transfers.is_empty() {
+        return parse_token_transfers(tx, signature, timestamp);
+    }
+
+    None
 }
 
 pub fn parse_swap(
@@ -46,6 +52,39 @@ pub fn parse_swap(
         wallet,
         value: output_value,
         token_mint: output_mint,
+        timestamp,
+        tx_signature: signature,
+    })
+}
+
+pub fn parse_token_transfers(
+    tx: &Value,
+    signature: String,
+    timestamp: DateTime<Utc>,
+) -> Option<NewTriggerEvent> {
+    let token_transfers = tx
+        .get("tokenTransfers")
+        .and_then(|i| i.as_array())?
+        .first()?;
+    // TODO: test with a token transfer event
+    let wallet = token_transfers
+        .get("fromUserAccount")
+        .and_then(|i| i.as_str())
+        .map(|i| i.to_string())?;
+    let value = token_transfers
+        .get("tokenAmount")
+        .and_then(|v| v.as_f64())
+        .unwrap_or(0.0);
+    let token_mint = token_transfers
+        .get("mint")
+        .and_then(|v| v.as_str())
+        .map(|i| i.to_string());
+
+    Some(NewTriggerEvent {
+        trigger_type: TriggerType::TokenTransfer,
+        wallet,
+        value,
+        token_mint,
         timestamp,
         tx_signature: signature,
     })
