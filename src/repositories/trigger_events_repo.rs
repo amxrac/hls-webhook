@@ -12,21 +12,24 @@ impl TriggerEventRepo {
         Self { db }
     }
 
-    pub async fn insert_event(&self, event: &NewTriggerEvent) -> Result<TriggerEvent, sqlx::Error> {
+    pub async fn insert_event(
+        &self,
+        event: &NewTriggerEvent,
+    ) -> Result<Option<TriggerEvent>, sqlx::Error> {
         let entry = sqlx::query_as::<_, TriggerEvent>(
             r#"
-            INSERT INTO trigger_events (trigger_type, wallet, value, token_mint, timestamp, tx_signature)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT OR IGNORE INTO trigger_events (trigger_type, wallet, value, token_mint, timestamp, tx_signature)
+            VALUES (?, ?, ?, ?, ?, ?)
             RETURNING id, trigger_type, wallet, value, token_mint, timestamp, tx_signature
             "#
         )
         .bind(event.trigger_type.match_type())
         .bind(&event.wallet)
-        .bind(&event.value.to_string())
+        .bind(&event.value)
         .bind(&event.token_mint)
         .bind(&event.timestamp)
         .bind(&event.tx_signature)
-        .fetch_one(&self.db)
+        .fetch_optional(&self.db)
         .await?;
 
         Ok(entry)
@@ -46,37 +49,41 @@ impl TriggerEventRepo {
         Ok(events)
     }
 
-    pub async fn get_event_by_wallet(
+    pub async fn get_events_by_wallet(
         &self,
         wallet: &str,
-    ) -> Result<Option<TriggerEvent>, sqlx::Error> {
+    ) -> Result<Vec<TriggerEvent>, sqlx::Error> {
         let event = sqlx::query_as::<_, TriggerEvent>(
             r#"
             SELECT id, trigger_type, wallet, value, token_mint, timestamp, tx_signature
             FROM trigger_events
-            WHERE wallet = $1
+            WHERE wallet = ?
+            ORDER BY timestamp DESC
+            LIMIT 30
             "#,
         )
         .bind(wallet)
-        .fetch_optional(&self.db)
+        .fetch_all(&self.db)
         .await?;
 
         Ok(event)
     }
 
-    pub async fn get_event_by_token(
+    pub async fn get_events_by_token_mint(
         &self,
-        token: &str,
-    ) -> Result<Option<TriggerEvent>, sqlx::Error> {
+        token_mint: &str,
+    ) -> Result<Vec<TriggerEvent>, sqlx::Error> {
         let event = sqlx::query_as::<_, TriggerEvent>(
             r#"
             SELECT id, trigger_type, wallet, value, token_mint, timestamp, tx_signature
             FROM trigger_events
-            WHERE token_mint = $1
+            WHERE token_mint = ?
+            ORDER BY timestamp DESC
+            LIMIT 30
             "#,
         )
-        .bind(token)
-        .fetch_optional(&self.db)
+        .bind(token_mint)
+        .fetch_all(&self.db)
         .await?;
 
         Ok(event)

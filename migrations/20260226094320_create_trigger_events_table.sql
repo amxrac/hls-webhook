@@ -3,9 +3,9 @@ CREATE TABLE trigger_events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     trigger_type TEXT NOT NULL,
     wallet TEXT NOT NULL,
-    value TEXT NOT NULL,
+    value REAL NOT NULL,
     token_mint TEXT,
-    timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    timestamp TEXT NOT NULL,
     tx_signature TEXT UNIQUE NOT NULL
 );
 
