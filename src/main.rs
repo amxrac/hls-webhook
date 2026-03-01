@@ -10,7 +10,7 @@ use axum::{
 };
 use hlswbhk::{
     parser::{self, parse_event},
-    repositories::trigger_events_repo::TriggerEventRepo,
+    repositories::trigger_event_repo::TriggerEventRepo,
     state::AppState,
 };
 use serde_json::{Value, json};
@@ -28,8 +28,8 @@ async fn main() {
         .route("/health", get(health_check))
         .route("/webhook", post(webhook))
         .route("/events", get(get_all_events))
-        .route("/events/:wallet", get(get_events_by_wallet))
-        .route("/events/mint/:token_mint)", get(get_events_by_token_mint))
+        .route("/events/{wallet}", get(get_events_by_wallet))
+        .route("/events/mint/{token_mint}", get(get_events_by_token_mint))
         .with_state(app_state);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();

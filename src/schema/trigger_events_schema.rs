@@ -1,5 +1,4 @@
-use crate::models::trigger_events::TriggerType;
-use chrono::{DateTime, Utc};
+use crate::models::trigger_event::TriggerType;
 use serde::{Deserialize, Serialize};
 // use sqlx::{FromRow, Type};
 

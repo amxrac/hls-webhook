@@ -1,3 +1,5 @@
-pub mod trigger_events;
+pub mod trigger_event;
+pub mod workflow;
 
-pub use trigger_events::TriggerEvent;
+pub use trigger_event::TriggerEvent;
+pub use workflow::*;

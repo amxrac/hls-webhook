@@ -1,4 +1,4 @@
-use crate::models::trigger_events::TriggerType;
+use crate::models::trigger_event::TriggerType;
 use crate::schema::trigger_events_schema::NewTriggerEvent;
 use chrono::{DateTime, Utc};
 use serde_json::Value;

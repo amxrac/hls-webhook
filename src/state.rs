@@ -1,4 +1,4 @@
-use crate::repositories::trigger_events_repo::TriggerEventRepo;
+use crate::repositories::{trigger_event_repo::TriggerEventRepo, workflow_repo::WorkflowRepo};
 use axum::extract::FromRef;
 use sqlx::SqlitePool;
 use std::sync::Arc;
@@ -7,6 +7,7 @@ use std::sync::Arc;
 pub struct AppState {
     pub db: SqlitePool,
     pub trigger_events_repo: TriggerEventRepo,
+    pub workflow_repo: WorkflowRepo,
 }
 
 impl AppState {
@@ -16,10 +17,12 @@ impl AppState {
         sqlx::migrate!("./migrations").run(&db).await?;
 
         let trigger_events_repo = TriggerEventRepo::new(db.clone());
+        let workflow_repo = WorkflowRepo::new(db.clone());
 
         Ok(Self {
             db,
             trigger_events_repo,
+            workflow_repo,
         })
     }
 }

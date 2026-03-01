@@ -1,4 +1,5 @@
-use crate::models::trigger_events::TriggerEvent;
+use crate::models::trigger_event::TriggerEvent;
+use crate::models::trigger_event::TriggerType;
 use crate::schema::trigger_events_schema::NewTriggerEvent;
 use sqlx::SqlitePool;
 
@@ -53,7 +54,7 @@ impl TriggerEventRepo {
         &self,
         wallet: &str,
     ) -> Result<Vec<TriggerEvent>, sqlx::Error> {
-        let event = sqlx::query_as::<_, TriggerEvent>(
+        let events = sqlx::query_as::<_, TriggerEvent>(
             r#"
             SELECT id, trigger_type, wallet, value, token_mint, timestamp, tx_signature
             FROM trigger_events
@@ -66,7 +67,27 @@ impl TriggerEventRepo {
         .fetch_all(&self.db)
         .await?;
 
-        Ok(event)
+        Ok(events)
+    }
+
+    pub async fn get_events_by_trigger_type(
+        &self,
+        trigger_type: TriggerType,
+    ) -> Result<Vec<TriggerEvent>, sqlx::Error> {
+        let events = sqlx::query_as::<_, TriggerEvent>(
+            r#"
+            SELECT id, trigger_type, wallet, value, token_mint, timestamp, tx_signature
+            FROM trigger_events
+            WHERE trigger_type = ?
+            ORDER BY timestamp DESC
+            LIMIT 30
+            "#,
+        )
+        .bind(trigger_type.match_type())
+        .fetch_all(&self.db)
+        .await?;
+
+        Ok(events)
     }
 
     pub async fn get_events_by_token_mint(
