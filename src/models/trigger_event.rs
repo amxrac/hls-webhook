@@ -1,4 +1,3 @@
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, Type};
 
@@ -15,6 +14,7 @@ pub struct TriggerEvent {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[sqlx(rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 pub enum TriggerType {
     TokenTransfer,
     WalletBalance,

@@ -12,5 +12,4 @@ pub struct NewWorkflow {
     pub action_type: String,
     pub action_params: String,
     pub status: String,
-    pub created_at: String,
 }

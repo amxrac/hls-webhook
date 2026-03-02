@@ -14,14 +14,11 @@ impl WorkflowRepo {
         Self { db }
     }
 
-    pub async fn create_workflow(
-        &self,
-        workflow: &NewWorkflow,
-    ) -> Result<Option<Workflow>, sqlx::Error> {
+    pub async fn create_workflow(&self, workflow: &NewWorkflow) -> Result<Workflow, sqlx::Error> {
         let workflow = sqlx::query_as::<_, Workflow>(
             r#"
-            INSERT INTO workflows (name, trigger_type, condition_operator, condition_value, watched_wallet, watched_token_mint, action_type, action_params, status, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO workflows (name, trigger_type, condition_operator, condition_value, watched_wallet, watched_token_mint, action_type, action_params, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             RETURNING id, name, trigger_type, condition_operator, condition_value, watched_wallet, watched_token_mint, action_type, action_params, status, created_at
             "#
         )
@@ -34,8 +31,7 @@ impl WorkflowRepo {
         .bind(&workflow.action_type)
         .bind(&workflow.action_params)
         .bind(&workflow.status)
-        .bind(&workflow.created_at)
-        .fetch_optional(&self.db)
+        .fetch_one(&self.db)
         .await?;
 
         Ok(workflow)

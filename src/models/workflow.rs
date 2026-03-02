@@ -1,6 +1,6 @@
 use crate::models::trigger_event::TriggerType;
 use serde::{Deserialize, Serialize};
-use sqlx::{FromRow, Type};
+use sqlx::FromRow;
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
 pub struct Workflow {

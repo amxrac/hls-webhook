@@ -1,7 +1,6 @@
 use crate::repositories::{trigger_event_repo::TriggerEventRepo, workflow_repo::WorkflowRepo};
 use axum::extract::FromRef;
 use sqlx::SqlitePool;
-use std::sync::Arc;
 
 #[derive(Clone, FromRef)]
 pub struct AppState {
