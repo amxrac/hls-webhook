@@ -24,4 +24,15 @@ impl AppState {
             workflow_repo,
         })
     }
+
+    pub fn from_pool(db: SqlitePool) -> Self {
+        let trigger_events_repo = TriggerEventRepo::new(db.clone());
+        let workflow_repo = WorkflowRepo::new(db.clone());
+
+        Self {
+            db,
+            trigger_events_repo,
+            workflow_repo,
+        }
+    }
 }

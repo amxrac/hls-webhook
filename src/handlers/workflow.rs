@@ -1,5 +1,5 @@
-use crate::schema::workflow_schema::NewWorkflow;
 use crate::state::AppState;
+use crate::{models::trigger_event::TriggerType, schema::workflow_schema::NewWorkflow};
 use axum::{
     extract::{Path, State},
     http::StatusCode,
@@ -38,6 +38,23 @@ pub async fn get_all_workflows(State(state): State<AppState>) -> (StatusCode, Js
 
 pub async fn get_active_workflows(State(state): State<AppState>) -> (StatusCode, Json<Value>) {
     match state.workflow_repo.get_active_workflows().await {
+        Ok(workflows) => (StatusCode::OK, Json(json!(workflows))),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({"error": e.to_string()})),
+        ),
+    }
+}
+
+pub async fn get_workflows_by_trigger_type(
+    State(state): State<AppState>,
+    Path(trigger_type): Path<TriggerType>,
+) -> (StatusCode, Json<Value>) {
+    match state
+        .workflow_repo
+        .get_workflows_by_trigger_type(trigger_type)
+        .await
+    {
         Ok(workflows) => (StatusCode::OK, Json(json!(workflows))),
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,

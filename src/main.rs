@@ -1,34 +1,20 @@
+use hlswbhk::app;
 use std::env;
-
-use axum::{
-    Router,
-    routing::{get, patch, post},
-};
-use hlswbhk::{handlers::*, state::*};
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
 async fn main() {
-    dotenvy::dotenv().ok();
+    tracing_subscriber::registry()
+        .with(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| format!("{}=debug", env!("CARGO_CRATE_NAME")).into()),
+        )
+        .with(tracing_subscriber::fmt::layer())
+        .init();
 
-    let db_url = env::var("DATABASE_URL").expect("DATABASE_URL not set");
-    let app_state = AppState::new(&db_url).await.expect("db connection failed");
-
-    println!("db connection successful!");
-
-    let app = Router::new()
-        .route("/health", get(health_check))
-        .route("/webhook", post(webhook))
-        .route("/events", get(get_all_events))
-        .route("/events/{wallet}", get(get_events_by_wallet))
-        .route("/events/mint/{token_mint}", get(get_events_by_token_mint))
-        .route("/workflows", post(create_workflow))
-        .route("/workflows", get(get_all_workflows))
-        .route("/workflows/active", get(get_active_workflows))
-        .route("/workflows/{id}/pause", post(pause_workflow))
-        .route("/workflows/{id}/activate", post(activate_workflow))
-        .with_state(app_state);
-
+    let app = app().await;
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    tracing::debug!("listening on {}", listener.local_addr().unwrap());
     println!("server is running on http://0.0.0.0:3000");
     axum::serve(listener, app).await.unwrap();
 }
