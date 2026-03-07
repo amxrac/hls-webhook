@@ -18,12 +18,12 @@ An API for listening to webhook events from helius, and manages workflows.
 ## Setup
 1. Clone the repo
 2. Setup env variables, RUST_LOG, and DATABASE_URL in an `.env` file
-		```bash
+		```
 			DATABASE_URL=sqlite:webhooks.db?mode=rwc
 			RUST_LOG=debug
 		```
 3. Run
-		```bash
+		```
 		cargo run
 		```
 
