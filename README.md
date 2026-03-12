@@ -1,4 +1,4 @@
-An API for listening to webhook events from helius, and manages workflows.
+An API that listens to webhook events from helius, and manages workflows.
 
 ## Routes
 | Method | Endpoint                  | Description                                                                      |
