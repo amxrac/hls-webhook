@@ -1,4 +1,3 @@
-# hlswbhk
 An API for listening to webhook events from helius, and manages workflows.
 
 ## Routes
@@ -32,3 +31,6 @@ Tests are in the /tests folder, and use an in memory sqlite db. To test, run:
 ```bash
 cargo test
 ```
+
+## TBA
+Features tba include rate limiting &/ auth 
